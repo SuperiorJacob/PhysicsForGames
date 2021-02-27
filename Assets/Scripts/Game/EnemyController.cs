@@ -32,7 +32,12 @@ public class EnemyController : MonoBehaviour
     void Update()
     {
         if (mover != null)
-            mover.position = Vector3.MoveTowards(mover.position, playerEyes.transform.position, speed * Time.fixedDeltaTime);
+        {
+            Vector3 dir = (mover.transform.position - playerEyes.transform.position).normalized;
+
+            mover.rotation = Quaternion.Slerp(mover.rotation, Quaternion.LookRotation(dir), Time.deltaTime * turnSpeed);
+            mover.position = Vector3.MoveTowards(mover.position, mover.position + mover.forward * -10f, speed * Time.fixedDeltaTime);//playerEyes.transform.position, speed * Time.fixedDeltaTime);
+        }
 
         animator.SetFloat("Speed", moving * speed * Time.fixedDeltaTime);
     }

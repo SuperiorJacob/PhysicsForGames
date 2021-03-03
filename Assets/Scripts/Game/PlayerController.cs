@@ -77,12 +77,14 @@ public class PlayerController : MonoBehaviour
 
         eyes.rotation = Quaternion.Euler(rotY, eyes.eulerAngles.y, eyes.eulerAngles.z);
 
+        float running = (Input.GetKey(KeyCode.LeftShift) ? 2f : 1f);
+
         // Movement
         if (PlayerForward() != 0)
-            controller.Move(transform.forward * PlayerForward() * moveSpeed * Time.fixedDeltaTime);
+            controller.Move(transform.forward * PlayerForward() * moveSpeed * running * Time.fixedDeltaTime);
 
         if (PlayerRight() != 0)
-            controller.Move(transform.right * PlayerRight() * moveSpeed * Time.fixedDeltaTime);
+            controller.Move(transform.right * PlayerRight() * moveSpeed * running * Time.fixedDeltaTime);
 
         if (!grounded)
             jump += Physics.gravity * Time.deltaTime;
@@ -99,10 +101,26 @@ public class PlayerController : MonoBehaviour
                 EnemyController e;
                 if (trace.transform.root.TryGetComponent(out e))
                 {
-                    if (e.TakeDamage(10, trace.transform.name) 
-                        || trace.transform.name == "LeftArm"
-                        || trace.transform.name == "RightArm")
+                    // There are many ways to do this not like this but im a lazy fucker.
+
+                    string n = trace.transform.name;
+                    if (e.TakeDamage(10, n)
+                        || n == "LeftArm"
+                        || n == "RightArm"
+                        || n == "LeftLeg"
+                        || n == "LeftUpLeg"
+                        || n == "RightLeg"
+                        || n == "RightUpLeg")
                     {
+                        if (n == "LeftLeg"
+                        || n == "LeftUpLeg"
+                        || n == "RightLeg"
+                        || n == "RightUpLeg")
+                            e.DeductPart("Leg");
+                        else if (n == "LeftArm"
+                        || n == "RightArm")
+                            e.DeductPart("Arm");
+
                         CharacterJoint c;
                         if (trace.transform.TryGetComponent(out c))
                         {
@@ -122,6 +140,10 @@ public class PlayerController : MonoBehaviour
             }
 
         }
+        else if (Input.GetKeyDown(KeyCode.Mouse1))
+        {
+
+        }
     }
 
     void Update()
@@ -130,6 +152,19 @@ public class PlayerController : MonoBehaviour
 
         Move();
         Attack();
+    }
+
+    public bool TakeDamage(int damage)
+    {
+        health -= damage;
+
+        if (health <= 0)
+        {
+
+            return true;
+        }
+
+        return false;
     }
 
     //void OnControllerColliderHit(ControllerColliderHit hit)

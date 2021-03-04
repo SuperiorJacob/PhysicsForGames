@@ -17,7 +17,7 @@ public class PlayerController : MonoBehaviour
     public float verticalSensitivity = 5.0f;
     public float jumpHeight = 100.0f;
 
-    public GameObject test;
+    public GameObject projectile;
 
     private float rotY = 0f;
 
@@ -112,15 +112,6 @@ public class PlayerController : MonoBehaviour
                         || n == "RightLeg"
                         || n == "RightUpLeg")
                     {
-                        if (n == "LeftLeg"
-                        || n == "LeftUpLeg"
-                        || n == "RightLeg"
-                        || n == "RightUpLeg")
-                            e.DeductPart("Leg");
-                        else if (n == "LeftArm"
-                        || n == "RightArm")
-                            e.DeductPart("Arm");
-
                         CharacterJoint c;
                         if (trace.transform.TryGetComponent(out c))
                         {
@@ -142,7 +133,12 @@ public class PlayerController : MonoBehaviour
         }
         else if (Input.GetKeyDown(KeyCode.Mouse1))
         {
+            GameObject obj = Instantiate(projectile, null);
+            obj.transform.position = eyes.transform.position + eyes.transform.forward;
+            obj.GetComponent<Rigidbody>().AddForce(eyes.transform.forward * 50f, ForceMode.Impulse);
+            obj.transform.rotation = eyes.transform.rotation;
 
+            Destroy(obj, 5);
         }
     }
 

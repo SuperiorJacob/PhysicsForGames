@@ -11,6 +11,7 @@ public class EnemyController : MonoBehaviour
     public float moving = 1;
     public float maxHealth = 100;
     public GameObject damager;
+    public LayerMask msk;
 
     private float legs = 1.5f;
     private float arms = 2f;
@@ -42,7 +43,7 @@ public class EnemyController : MonoBehaviour
             Vector3 hold = mover.position - Vector3.up * 1.5f;
 
             RaycastHit hit;
-            if (Physics.Raycast(mover.position, -Vector3.up, out hit, legs + 1, ~(1 << 8)))
+            if (Physics.Raycast(mover.position, -Vector3.up, out hit, legs + 1, msk))
             {
                 hold = hit.point + Vector3.up * legs;
             }
@@ -50,7 +51,7 @@ public class EnemyController : MonoBehaviour
             float dist = 5f;
 
             RaycastHit forwardHit;
-            if (Physics.Raycast(mover.position, -mover.forward, out forwardHit, 0.1f, ~(1 << 8)))
+            if (Physics.Raycast(mover.position, -mover.forward, out forwardHit, 0.1f, msk))
             {
                 dist = -0.3f;
             }
@@ -88,12 +89,23 @@ public class EnemyController : MonoBehaviour
         return ragdollBase.RagdollOn;
     }
 
+    public float GetHealth() { return health;  }
+
     // Take damage.
     public bool TakeDamage(int damage, string damageType)
     {
         if (dead) return true;
 
         int damageMult = 1;
+
+        if (damageType == "LeftLeg"
+        || damageType == "LeftUpLeg"
+        || damageType == "RightLeg"
+        || damageType == "RightUpLeg")
+            DeductPart("Leg");
+        else if (damageType == "LeftArm"
+        || damageType == "RightArm")
+            DeductPart("Arm");
 
         switch (damageType)
         {
@@ -126,7 +138,9 @@ public class EnemyController : MonoBehaviour
     {
         dead = true;
         ragdollBase.RagdollOn = true;
-        Destroy(mover.gameObject);
-        Destroy(damager);
+
+        if (damager != null) Destroy(damager);
+        if (mover != null) Destroy(mover.gameObject);
+
     }
 }

@@ -1,0 +1,221 @@
+fileFormatVersion: 2
+guid: f921856ee738ddf4eb3dc65e60aba289
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: _ForeGrip
+    100002: _RailMount_Under
+    100004: _Slide
+    100006: _StockMount
+    100008: _SuppresorMount
+    100010: Barrel
+    100012: BreachSmokePoint2
+    100014: Capsule
+    100016: Chamber
+    100018: //RootNode
+    100020: Frame
+    100022: MagRelease
+    100024: Phys
+    100026: Phys 1
+    100028: Phys_Box
+    100030: Phys_Box (1)
+    100032: Phys_Box (10)
+    100034: Phys_Box (13)
+    100036: Phys_Box (14)
+    100038: Phys_Box (2)
+    100040: Phys_Box (3)
+    100042: Phys_Box (6)
+    100044: Phys_Box (7)
+    100046: Phys_Box (8)
+    100048: Phys_Cube
+    100050: Phys_Cube (1)
+    100052: Phys_Cube (2)
+    100054: Phys_Cube (3)
+    100056: Phys_Cube (4)
+    100058: Phys_Cube (5)
+    100060: Point
+    100062: Point 1
+    100064: Point_Front
+    100066: Point_GasOut_Breach
+    100068: Point_Mag_EjectPos
+    100070: Point_Mag_MountPos
+    100072: Point_Muzzle
+    100074: Point_Rear
+    100076: Point_Round_Ejecting
+    100078: Point_Round_Ejection
+    100080: Point_Round_MagExit
+    100082: Point_Slide_Forward
+    100084: Point_Slide_LockPoint
+    100086: Point_Slide_Rear
+    100088: PoseOverride
+    100090: PoseOverride 1
+    100092: PoseOverride_Touch
+    100094: QB_Point
+    100096: RecoilHolder
+    100098: ReloadWell
+    100100: Safety
+    100102: Slide
+    100104: SlideRelease
+    100106: Trigger
+    400000: _ForeGrip
+    400002: _RailMount_Under
+    400004: _Slide
+    400006: _StockMount
+    400008: _SuppresorMount
+    400010: Barrel
+    400012: BreachSmokePoint2
+    400014: Capsule
+    400016: Chamber
+    400018: //RootNode
+    400020: Frame
+    400022: MagRelease
+    400024: Phys
+    400026: Phys 1
+    400028: Phys_Box
+    400030: Phys_Box (1)
+    400032: Phys_Box (10)
+    400034: Phys_Box (13)
+    400036: Phys_Box (14)
+    400038: Phys_Box (2)
+    400040: Phys_Box (3)
+    400042: Phys_Box (6)
+    400044: Phys_Box (7)
+    400046: Phys_Box (8)
+    400048: Phys_Cube
+    400050: Phys_Cube (1)
+    400052: Phys_Cube (2)
+    400054: Phys_Cube (3)
+    400056: Phys_Cube (4)
+    400058: Phys_Cube (5)
+    400060: Point
+    400062: Point 1
+    400064: Point_Front
+    400066: Point_GasOut_Breach
+    400068: Point_Mag_EjectPos
+    400070: Point_Mag_MountPos
+    400072: Point_Muzzle
+    400074: Point_Rear
+    400076: Point_Round_Ejecting
+    400078: Point_Round_Ejection
+    400080: Point_Round_MagExit
+    400082: Point_Slide_Forward
+    400084: Point_Slide_LockPoint
+    400086: Point_Slide_Rear
+    400088: PoseOverride
+    400090: PoseOverride 1
+    400092: PoseOverride_Touch
+    400094: QB_Point
+    400096: RecoilHolder
+    400098: ReloadWell
+    400100: Safety
+    400102: Slide
+    400104: SlideRelease
+    400106: Trigger
+    2100000: unnamed
+    2300000: Barrel
+    2300002: Frame
+    2300004: MagRelease
+    2300006: Safety
+    2300008: Slide
+    2300010: SlideRelease
+    2300012: Trigger
+    3300000: Barrel
+    3300002: Frame
+    3300004: MagRelease
+    3300006: Safety
+    3300008: Slide
+    3300010: SlideRelease
+    3300012: Trigger
+    4300000: Slide
+    4300002: Barrel
+    4300004: Frame
+    4300006: MagRelease
+    4300008: SlideRelease
+    4300010: Trigger
+    4300012: Safety
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

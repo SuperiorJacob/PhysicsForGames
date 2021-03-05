@@ -21,6 +21,7 @@ public class EnemyController : MonoBehaviour
     private float health;
     private bool dead = false;
     private Transform playerEyes;
+    private GameObject HM;
 
     // Start is called before the first frame update
     void Start()
@@ -31,6 +32,7 @@ public class EnemyController : MonoBehaviour
         animator = GetComponent<Animator>();
         ragdollBase = GetComponent<RagdollBase>();
 
+        HM = PlayerController.mainPlayer.hitMarker;
     }
 
     // Update is called once per frame
@@ -92,7 +94,7 @@ public class EnemyController : MonoBehaviour
     public float GetHealth() { return health;  }
 
     // Take damage.
-    public bool TakeDamage(int damage, string damageType)
+    public bool TakeDamage(int damage, string damageType, RaycastHit dmgInfo)
     {
         if (dead) return true;
 
@@ -121,6 +123,13 @@ public class EnemyController : MonoBehaviour
             default:
                 break;
         }
+
+        GameObject hitMarker = Instantiate(HM);
+        hitMarker.transform.position = dmgInfo.point;
+
+        HitMarker hmMarker = hitMarker.GetComponent<HitMarker>();
+        hmMarker.damage = damage * damageMult;
+        hmMarker.faceTowards = playerEyes;
 
         health -= damage * damageMult;
 

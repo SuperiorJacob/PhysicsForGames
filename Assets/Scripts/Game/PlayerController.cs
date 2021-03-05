@@ -10,26 +10,44 @@ public class PlayerController : MonoBehaviour
     public int health = 100;
     public int maxHealth = 100;
 
-    public GameObject damageParticle;
-
-    public float moveSpeed = 80.0f;
+    public float defaultMoveSpeed = 1f;
     public float sensitivity = 5.0f;
     public float verticalSensitivity = 5.0f;
     public float jumpHeight = 100.0f;
+    public float reloadSpeed = 100.0f;
 
+    public Vector3 scopedSpread;
+    public Vector3 defaultSpread;
+
+    public GameObject damageParticle;
     public GameObject projectile;
+    public GameObject hitMarker;
+    public HUD pHud;
+    public Transform gun;
+    public Transform scopeDefault;
+    public Transform gunDefault;
 
     private float rotY = 0f;
 
-    private bool grounded = false;
-    
-    public Vector3 jump;
+    private Vector3 spread;
 
-    private RaycastHit trace;
+    private bool grounded = false;
+
+    private float moveSpeed;
+    public Vector3 jump;
+    
+    private RaycastHit eyeTrace;
+    private RaycastHit weaponTrace;
 
     private Transform eyes;
-
     private CharacterController controller = null;
+
+    private float primaryAmmo = 10;
+    private float primaryClip = 30;
+    private float blades = 3;
+
+    private bool reloading = false;
+    private float reloadRot = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +59,12 @@ public class PlayerController : MonoBehaviour
         eyes = Camera.main.transform;
 
         Cursor.lockState = CursorLockMode.Locked;
+
+        pHud.maxHealth = maxHealth;
+        pHud.Assign(health, 10, 30, 3);
+
+        spread = defaultSpread;
+        moveSpeed = defaultMoveSpeed;
     }
 
     private float PlayerForward()
@@ -94,17 +118,30 @@ public class PlayerController : MonoBehaviour
 
     private void Attack()
     {
-        if (Input.GetKeyDown(KeyCode.Mouse0))
+        if (Input.GetKeyDown(KeyCode.Mouse0) && !(primaryAmmo <= 0 && primaryClip <= 0) && !reloading)
         {
-            if (trace.collider != null)
+            primaryAmmo -= 1;
+
+            pHud.ammoTo = primaryAmmo;
+            pHud.clipTo = primaryClip;
+
+            int spreadMult = Input.GetKey(KeyCode.LeftShift) ? 2 : 1;
+            
+            Physics.Raycast(eyes.position, (eyes.forward + (new Vector3(Random.Range(-spread.x * spreadMult, spread.x * spreadMult), Random.Range(-spread.y * spreadMult, spread.y * spreadMult), Random.Range(-spread.z * spreadMult, spread.z * spreadMult)))).normalized, out weaponTrace);
+            GameObject dP = Instantiate(damageParticle, weaponTrace.point, new Quaternion(), null);
+            Destroy(dP, 5);
+
+            if (weaponTrace.collider != null)
             {
                 EnemyController e;
-                if (trace.transform.root.TryGetComponent(out e))
+                if (weaponTrace.transform.root.TryGetComponent(out e))
                 {
                     // There are many ways to do this not like this but im a lazy fucker.
 
-                    string n = trace.transform.name;
-                    if (e.TakeDamage(10, n)
+                    int rand = Random.Range(10, 30);
+
+                    string n = weaponTrace.transform.name;
+                    if (e.TakeDamage(rand, n, weaponTrace)
                         || n == "LeftArm"
                         || n == "RightArm"
                         || n == "LeftLeg"
@@ -113,39 +150,80 @@ public class PlayerController : MonoBehaviour
                         || n == "RightUpLeg")
                     {
                         CharacterJoint c;
-                        if (trace.transform.TryGetComponent(out c))
+                        if (weaponTrace.transform.TryGetComponent(out c))
                         {
-                            trace.transform.parent = null;
+                            weaponTrace.transform.parent = null;
                             Destroy(c);
                         }
                     }
                 }
 
-                if (trace.collider != null && trace.collider.attachedRigidbody != null)
+                if (weaponTrace.collider != null && weaponTrace.collider.attachedRigidbody != null)
                 {
-                    GameObject dP = Instantiate(damageParticle, trace.point, new Quaternion(), null);
-                    Destroy(dP, 5);
-
-                    trace.collider.attachedRigidbody.AddForceAtPosition(trace.normal * -1000, trace.point);
+                    weaponTrace.collider.attachedRigidbody.AddForceAtPosition(weaponTrace.normal * -1000, weaponTrace.point);
                 }
             }
 
+            if (primaryAmmo <= 0)
+            {
+                reloading = true;
+            }
         }
-        else if (Input.GetKeyDown(KeyCode.Mouse1))
+        
+        if (!reloading)
         {
+            if (Input.GetKey(KeyCode.Mouse1))
+            {
+                gun.position = Vector3.Lerp(gun.position, scopeDefault.position, 5 * Time.deltaTime);
+                gun.rotation = Quaternion.Lerp(gun.rotation, scopeDefault.rotation, 5 * Time.deltaTime);
+                spread = scopedSpread;
+                moveSpeed = defaultMoveSpeed * 0.1f;
+
+
+            }
+            else
+            {
+                spread = defaultSpread;
+                gun.position = Vector3.Lerp(gun.position, gunDefault.position, 5 * Time.deltaTime);
+                gun.rotation = Quaternion.Lerp(gun.rotation, gunDefault.rotation, 5 * Time.deltaTime);
+                moveSpeed = defaultMoveSpeed;
+            }
+        }
+
+        if (blades > 0 && Input.GetKeyDown(KeyCode.Q))
+        {
+            blades -= 1;
+            pHud.secondaryTo = blades;
+
             GameObject obj = Instantiate(projectile, null);
             obj.transform.position = eyes.transform.position + eyes.transform.forward;
             obj.GetComponent<Rigidbody>().AddForce(eyes.transform.forward * 50f, ForceMode.Impulse);
             obj.transform.rotation = eyes.transform.rotation;
 
-            Destroy(obj, 5);
+            Destroy(obj, 10);
+        }
+    }
+
+    public void Reload()
+    {
+        gun.Rotate(reloadSpeed * Time.deltaTime, 0, 0);
+        reloadRot += reloadSpeed * Time.deltaTime;
+
+        if (reloadRot >= 360)
+        {
+            reloadRot = 0;
+            reloading = false;
+
+            primaryAmmo = Mathf.Clamp(primaryClip, 0, 10);
+            primaryClip = primaryClip - primaryAmmo;
         }
     }
 
     void Update()
     {
-        Physics.Raycast(eyes.position, eyes.forward, out trace);
+        Physics.Raycast(eyes.position, eyes.forward, out eyeTrace);
 
+        if (reloading) Reload();
         Move();
         Attack();
     }
@@ -153,6 +231,8 @@ public class PlayerController : MonoBehaviour
     public bool TakeDamage(int damage)
     {
         health -= damage;
+
+        pHud.healthTo = health;
 
         if (health <= 0)
         {

@@ -13,6 +13,10 @@ public class EnemyController : MonoBehaviour
     public GameObject damager;
     public LayerMask msk;
 
+    public bool isSpawner = false;
+    public GameObject toSpawn;
+    public Transform spawnPos;
+
     private float legs = 1.5f;
     private float arms = 2f;
 
@@ -23,7 +27,6 @@ public class EnemyController : MonoBehaviour
     private Transform playerEyes;
     private GameObject HM;
 
-    // Start is called before the first frame update
     void Start()
     {
         playerEyes = Camera.main.transform;
@@ -32,7 +35,28 @@ public class EnemyController : MonoBehaviour
         animator = GetComponent<Animator>();
         ragdollBase = GetComponent<RagdollBase>();
 
+        StartCoroutine(LateStart(0.5f));
+
+        if (isSpawner)
+            StartCoroutine(Spawner());
+    }
+
+    IEnumerator LateStart(float waitTime)
+    {
+        yield return new WaitForSeconds(waitTime);
         HM = PlayerController.mainPlayer.hitMarker;
+    }
+
+    IEnumerator Spawner()
+    {
+        while (!dead)
+        {
+            GameObject obj = Instantiate(toSpawn, spawnPos.position, spawnPos.rotation, null);
+            obj.transform.DetachChildren();
+            PlayerController.mainPlayer.enemies++;
+
+            yield return new WaitForSeconds(10.0f);
+        }
     }
 
     // Update is called once per frame
@@ -65,13 +89,13 @@ public class EnemyController : MonoBehaviour
             Debug.DrawLine(mover.position, hold + go * -0.1f, Color.blue);
 
             Vector3 target = hold + go * -dist * (legs + 1f);
-            Vector3 moveTowards = Vector3.MoveTowards(mover.position, target, (mover.position.y - target.y > 1f ? 10f : 1f) * speed * Time.fixedDeltaTime);
+            Vector3 moveTowards = Vector3.MoveTowards(mover.position, target, (mover.position.y - target.y > 1f ? 10f : 1f) * speed * Time.deltaTime);
 
             mover.rotation = Quaternion.Slerp(mover.rotation, Quaternion.LookRotation(dir), Time.deltaTime * turnSpeed);
             mover.position = moveTowards; //playerEyes.transform.position, speed * Time.fixedDeltaTime);
         }
 
-        animator.SetFloat("Speed", moving * speed * Time.fixedDeltaTime);
+        animator.SetFloat("Speed", moving * speed * Time.deltaTime);
     }
 
     public void DeductPart(string part)
@@ -147,6 +171,8 @@ public class EnemyController : MonoBehaviour
     {
         dead = true;
         ragdollBase.RagdollOn = true;
+
+        PlayerController.mainPlayer.enemies--;
 
         if (damager != null) Destroy(damager);
         if (mover != null) Destroy(mover.gameObject);

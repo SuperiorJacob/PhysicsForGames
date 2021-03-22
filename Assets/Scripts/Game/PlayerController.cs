@@ -1,12 +1,15 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController mainPlayer;
-
+    public int enemies = 10;
     public int health = 100;
     public int maxHealth = 100;
 
@@ -27,11 +30,19 @@ public class PlayerController : MonoBehaviour
     public Transform scopeDefault;
     public Transform gunDefault;
 
+    public Text missionTimer;
+    public float missionCountTimer;
+
+    public GameObject deathScreen;
+    public GameObject winScreen;
+    public Text timeCompleted;
+
     private float rotY = 0f;
 
     private Vector3 spread;
 
     private bool grounded = false;
+    private bool won = false;
 
     private float moveSpeed;
     public Vector3 jump;
@@ -43,16 +54,20 @@ public class PlayerController : MonoBehaviour
     private CharacterController controller = null;
 
     private float primaryAmmo = 10;
-    private float primaryClip = 30;
+    private float primaryClip = 50;
     private float blades = 3;
 
     private bool reloading = false;
     private float reloadRot = 0;
 
+    private string missionCountTimerFormat;
+
     // Start is called before the first frame update
     void Start()
     {
         mainPlayer = this;
+        deathScreen.SetActive(false);
+        winScreen.SetActive(false);
 
         controller = GetComponent<CharacterController>();
 
@@ -65,6 +80,8 @@ public class PlayerController : MonoBehaviour
 
         spread = defaultSpread;
         moveSpeed = defaultMoveSpeed;
+
+        missionCountTimerFormat = missionTimer.text;
     }
 
     private float PlayerForward()
@@ -94,9 +111,9 @@ public class PlayerController : MonoBehaviour
         }
 
         // Mouse
-        transform.Rotate(transform.up, Input.GetAxis("Mouse X") * sensitivity * Time.fixedDeltaTime);
+        transform.Rotate(transform.up, Input.GetAxis("Mouse X") * sensitivity * Time.deltaTime);
 
-        rotY += -Input.GetAxis("Mouse Y") * verticalSensitivity * Time.fixedDeltaTime;
+        rotY += -Input.GetAxis("Mouse Y") * verticalSensitivity * Time.deltaTime;
         rotY = Mathf.Clamp(rotY, -90f, 90f);
 
         eyes.rotation = Quaternion.Euler(rotY, eyes.eulerAngles.y, eyes.eulerAngles.z);
@@ -105,10 +122,10 @@ public class PlayerController : MonoBehaviour
 
         // Movement
         if (PlayerForward() != 0)
-            controller.Move(transform.forward * PlayerForward() * moveSpeed * running * Time.fixedDeltaTime);
+            controller.Move(transform.forward * PlayerForward() * moveSpeed * running * Time.deltaTime);
 
         if (PlayerRight() != 0)
-            controller.Move(transform.right * PlayerRight() * moveSpeed * running * Time.fixedDeltaTime);
+            controller.Move(transform.right * PlayerRight() * moveSpeed * running * Time.deltaTime);
 
         if (!grounded)
             jump += Physics.gravity * Time.deltaTime;
@@ -127,7 +144,7 @@ public class PlayerController : MonoBehaviour
 
             int spreadMult = Input.GetKey(KeyCode.LeftShift) ? 2 : 1;
             
-            Physics.Raycast(eyes.position, (eyes.forward + (new Vector3(Random.Range(-spread.x * spreadMult, spread.x * spreadMult), Random.Range(-spread.y * spreadMult, spread.y * spreadMult), Random.Range(-spread.z * spreadMult, spread.z * spreadMult)))).normalized, out weaponTrace);
+            Physics.Raycast(eyes.position, (eyes.forward + (new Vector3(UnityEngine.Random.Range(-spread.x * spreadMult, spread.x * spreadMult), UnityEngine.Random.Range(-spread.y * spreadMult, spread.y * spreadMult), UnityEngine.Random.Range(-spread.z * spreadMult, spread.z * spreadMult)))).normalized, out weaponTrace);
             GameObject dP = Instantiate(damageParticle, weaponTrace.point, new Quaternion(), null);
             Destroy(dP, 5);
 
@@ -138,7 +155,7 @@ public class PlayerController : MonoBehaviour
                 {
                     // There are many ways to do this not like this but im a lazy fucker.
 
-                    int rand = Random.Range(10, 30);
+                    int rand = UnityEngine.Random.Range(10, 30);
 
                     string n = weaponTrace.transform.name;
                     if (e.TakeDamage(rand, n, weaponTrace)
@@ -177,7 +194,7 @@ public class PlayerController : MonoBehaviour
                 gun.position = Vector3.Lerp(gun.position, scopeDefault.position, 5 * Time.deltaTime);
                 gun.rotation = Quaternion.Lerp(gun.rotation, scopeDefault.rotation, 5 * Time.deltaTime);
                 spread = scopedSpread;
-                moveSpeed = defaultMoveSpeed * 0.1f;
+                moveSpeed = defaultMoveSpeed * 0.5f;
 
 
             }
@@ -226,6 +243,23 @@ public class PlayerController : MonoBehaviour
         if (reloading) Reload();
         Move();
         Attack();
+
+        missionCountTimer -= Time.deltaTime;
+
+        TimeSpan timeSpan = TimeSpan.FromSeconds(missionCountTimer);
+        missionTimer.text = string.Format(missionCountTimerFormat, timeSpan.Minutes, timeSpan.Seconds);
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.LoadSceneAsync("Game");
+        }
+
+        if (enemies <= 0 && !won)
+        {
+            won = true;
+            winScreen.SetActive(true);
+            timeCompleted.text = string.Format("Mission completed in: {0:D2}:{1:D2}!", timeSpan.Minutes, timeSpan.Seconds);
+        }
     }
 
     public bool TakeDamage(int damage)
@@ -236,11 +270,24 @@ public class PlayerController : MonoBehaviour
 
         if (health <= 0)
         {
-
+            deathScreen.SetActive(true);
             return true;
         }
 
         return false;
+    }
+
+    void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        Rigidbody body = hit.collider.attachedRigidbody;
+        if (body == null || body.isKinematic)
+            return;
+
+        if (hit.moveDirection.y < -0.3f)
+            return;
+
+        Vector3 pushDirection = new Vector3(hit.moveDirection.x, 0, hit.moveDirection.z);
+        body.velocity = pushDirection * 5f;
     }
 
     //void OnControllerColliderHit(ControllerColliderHit hit)
